@@ -20,28 +20,27 @@ class Vgg19:
         self.data_dict = np.load(vgg19_npy_path, encoding='latin1').item()
         print("npy file loaded")
 
-    def build(self, bgr):
+    def build(self, rgb):
         """
         load variable from npy to build the VGG
 
-        :param bgr: bgr image [batch, height, width, 3] values scaled [0, 255]
-                    float32
+        :param rgb: rgb image [batch, height, width, 3]
         """
 
         start_time = time.time()
         print("build model started")
-        #rgb_scaled = rgb * 255.0
+        rgb_scaled = rgb * 255.0
 
         # Convert RGB to BGR
-        #red, green, blue = tf.split(split_dim=3, num_split=3, value=rgb_scaled)
+        red, green, blue = tf.split(split_dim=3, num_split=3, value=rgb_scaled)
         #assert red.get_shape().as_list()[1:] == [224, 224, 1]
         #assert green.get_shape().as_list()[1:] == [224, 224, 1]
         #assert blue.get_shape().as_list()[1:] == [224, 224, 1]
-        #bgr = tf.concat(concat_dim=3, values=[
-        #    blue - VGG_MEAN[0],
-        #    green - VGG_MEAN[1],
-        #    red - VGG_MEAN[2],
-        #])
+        bgr = tf.concat(concat_dim=3, values=[
+            blue - VGG_MEAN[0],
+            green - VGG_MEAN[1],
+            red - VGG_MEAN[2],
+        ])
         #assert bgr.get_shape().as_list()[1:] == [224, 224, 3]
 
         self.conv1_1 = self.conv_layer(bgr, "conv1_1")
