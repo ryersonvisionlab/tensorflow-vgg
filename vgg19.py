@@ -32,16 +32,16 @@ class Vgg19:
         rgb_scaled = rgb * 255.0
 
         # Convert RGB to BGR
-        red, green, blue = tf.split(axis=3, num_or_size_splits=3, value=rgb_scaled)
-        assert red.get_shape().as_list()[1:] == [224, 224, 1]
-        assert green.get_shape().as_list()[1:] == [224, 224, 1]
-        assert blue.get_shape().as_list()[1:] == [224, 224, 1]
-        bgr = tf.concat(axis=3, values=[
+        red, green, blue = tf.split(split_dim=3, num_split=3, value=rgb_scaled)
+        #assert red.get_shape().as_list()[1:] == [224, 224, 1]
+        #assert green.get_shape().as_list()[1:] == [224, 224, 1]
+        #assert blue.get_shape().as_list()[1:] == [224, 224, 1]
+        bgr = tf.concat(concat_dim=3, values=[
             blue - VGG_MEAN[0],
             green - VGG_MEAN[1],
             red - VGG_MEAN[2],
         ])
-        assert bgr.get_shape().as_list()[1:] == [224, 224, 3]
+        #assert bgr.get_shape().as_list()[1:] == [224, 224, 3]
 
         self.conv1_1 = self.conv_layer(bgr, "conv1_1")
         self.conv1_2 = self.conv_layer(self.conv1_1, "conv1_2")
@@ -69,16 +69,16 @@ class Vgg19:
         self.conv5_4 = self.conv_layer(self.conv5_3, "conv5_4")
         self.pool5 = self.max_pool(self.conv5_4, 'pool5')
 
-        self.fc6 = self.fc_layer(self.pool5, "fc6")
-        assert self.fc6.get_shape().as_list()[1:] == [4096]
-        self.relu6 = tf.nn.relu(self.fc6)
+        #self.fc6 = self.fc_layer(self.pool5, "fc6")
+        #assert self.fc6.get_shape().as_list()[1:] == [4096]
+        #self.relu6 = tf.nn.relu(self.fc6)
 
-        self.fc7 = self.fc_layer(self.relu6, "fc7")
-        self.relu7 = tf.nn.relu(self.fc7)
+        #self.fc7 = self.fc_layer(self.relu6, "fc7")
+        #self.relu7 = tf.nn.relu(self.fc7)
 
-        self.fc8 = self.fc_layer(self.relu7, "fc8")
+        #self.fc8 = self.fc_layer(self.relu7, "fc8")
 
-        self.prob = tf.nn.softmax(self.fc8, name="prob")
+        #self.prob = tf.nn.softmax(self.fc8, name="prob")
 
         self.data_dict = None
         print(("build model finished: %ds" % (time.time() - start_time)))
