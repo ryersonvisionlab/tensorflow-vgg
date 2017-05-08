@@ -76,23 +76,26 @@ class Vgg19:
         bottom = tf.pad(bottom, [[0, 0], [1, 1],
                                  [1, 1], [0, 0]],
                         'SYMMETRIC')
-        return tf.nn.avg_pool(bottom, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name=name)
+        return tf.nn.avg_pool(bottom, ksize=[1, 2, 2, 1],
+                              strides=[1, 2, 2, 1], padding='VALID',
+                              name=name)
 
     def max_pool(self, bottom, name):
         bottom = tf.pad(bottom, [[0, 0], [1, 1],
                                  [1, 1], [0, 0]],
                         'SYMMETRIC')
-        return tf.nn.max_pool(bottom, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name=name)
+        return tf.nn.max_pool(bottom, ksize=[1, 2, 2, 1],
+                              strides=[1, 2, 2, 1], padding='VALID',
+                              name=name)
 
     def conv_layer(self, bottom, name):
         with tf.variable_scope(name):
             filt = self.get_conv_filter(name)
 
-            k_h, k_w = (tf.shape(filt)[0], tf.shape(filt)[1])
-            bottom = tf.pad(bottom, [[0, 0], [k_h / 2, k_h / 2],
-                                     [k_w / 2, k_w / 2], [0, 0]], 'SYMMETRIC')
+            bottom = tf.pad(bottom, [[0, 0], [1, 1],
+                                     [1, 1], [0, 0]], 'SYMMETRIC')
 
-            conv = tf.nn.conv2d(bottom, filt, [1, 1, 1, 1], padding='SAME')
+            conv = tf.nn.conv2d(bottom, filt, [1, 1, 1, 1], padding='VALID')
 
             conv_biases = self.get_bias(name)
             bias = tf.nn.bias_add(conv, conv_biases)
