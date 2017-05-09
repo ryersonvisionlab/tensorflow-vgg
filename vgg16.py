@@ -5,8 +5,6 @@ import numpy as np
 import tensorflow as tf
 import time
 
-VGG_MEAN = [103.939, 116.779, 123.68]  # BGR
-
 
 class Vgg16:
     def __init__(self, vgg16_npy_path=None):
@@ -20,28 +18,15 @@ class Vgg16:
         self.data_dict = np.load(vgg16_npy_path, encoding='latin1').item()
         print("npy file loaded")
 
-    def build(self, rgb):
+    def build(self, bgr):
         """
         load variable from npy to build the VGG
 
-        :param rgb: rgb image [batch, height, width, 3]
+        :param bgr: bgr image [batch, height, width, 3]
         """
 
         start_time = time.time()
         print("build model started")
-        rgb_scaled = rgb * 255.0
-
-        # Convert RGB to BGR
-        red, green, blue = tf.split(axis=3, num_or_size_splits=3, value=rgb_scaled)
-        assert red.get_shape().as_list()[1:] == [224, 224, 1]
-        assert green.get_shape().as_list()[1:] == [224, 224, 1]
-        assert blue.get_shape().as_list()[1:] == [224, 224, 1]
-        bgr = tf.concat(axis=3, values=[
-            blue - VGG_MEAN[0],
-            green - VGG_MEAN[1],
-            red - VGG_MEAN[2],
-        ])
-        assert bgr.get_shape().as_list()[1:] == [224, 224, 3]
 
         self.conv1_1 = self.conv_layer(bgr, "conv1_1")
         self.conv1_2 = self.conv_layer(self.conv1_1, "conv1_2")
@@ -70,19 +55,11 @@ class Vgg16:
         print(("build model finished: %ds" % (time.time() - start_time)))
 
     def avg_pool(self, bottom, name):
-        #bottom = tf.pad(bottom, [[0, 0], [1, 1],
-        #                         [1, 1], [0, 0]],
-        #                'SYMMETRIC')
-
         return tf.nn.avg_pool(bottom, ksize=[1, 2, 2, 1],
                               strides=[1, 2, 2, 1], padding='SAME',
                               name=name)
 
     def max_pool(self, bottom, name):
-        #bottom = tf.pad(bottom, [[0, 0], [1, 1],
-        #                         [1, 1], [0, 0]],
-        #                'SYMMETRIC')
-
         return tf.nn.max_pool(bottom, ksize=[1, 2, 2, 1],
                               strides=[1, 2, 2, 1], padding='SAME',
                               name=name)
@@ -90,9 +67,6 @@ class Vgg16:
     def conv_layer(self, bottom, name):
         with tf.variable_scope(name):
             filt = self.get_conv_filter(name)
-
-            #bottom = tf.pad(bottom, [[0, 0], [1, 1],
-            #                         [1, 1], [0, 0]], 'SYMMETRIC')
 
             conv = tf.nn.conv2d(bottom, filt, [1, 1, 1, 1], padding='SAME')
 
